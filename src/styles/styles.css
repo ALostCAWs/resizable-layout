@@ -64,6 +64,7 @@ input, select, button {
 
 /* Reset, Border-Box, & Font-Var-Set */
 * {
+  position: relative;
   margin: 0px;
   padding: 0px;
   box-sizing: border-box;

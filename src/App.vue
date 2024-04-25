@@ -4,18 +4,23 @@ import Sidebar from './components/sidebar/Sidebar.vue'
 
 <template>
   <div>
-    <div class="page-wrapper" :inert="modalActive">
-      <h1 class="hiddenHeading">Aquarium Management - Tank List</h1>
-      <aside class="sidebar-left">
-        <Sidebar
-          :group="'plants'"
-        />
-      </aside>
-      <aside class="sidebar-right">
-        <Sidebar
-          :group="'livestock'"
-        />
-      </aside>
+    <div class="page-wrapper">
+      <h1 class="hiddenHeading">Resizable Layout</h1>
+      <div class="resizable-components-container">
+        <aside class="resizable-sidebar-left resizable">
+          <Sidebar
+            :group="'plants'"
+          />
+        </aside>
+        <div class="resize-controller resize-controller-left left"></div>
+        <section class="main-content resizable"></section>
+        <div class="resize-controller resize-controller-right right"></div>
+        <aside class="resizable-sidebar-right resizable">
+          <Sidebar
+            :group="'livestock'"
+          />
+        </aside>
+      </div>
     </div>
   </div>
 </template>
@@ -27,13 +32,91 @@ export default {
     Sidebar
   },
   methods: {
+    mouseDownFunction: function (e) {
+      console.log(e);
+      this.dragging = true;
+      if (e.toElement.classList.contains('left')) {
+        console.log('left');
+        this.leftMoveX = e.x;
+      }
+      if (e.toElement.classList.contains('right')) {
+        console.log('right');
+        this.rightMoveX = e.x;
+        this.rightResizeOffset = Math.round(e.x - (this.leftSidebarWidth + this.controllerWidth + this.mainContentWidth ));
+        console.log(this.rightMoveX);
+        console.log(this.rightResizeOffset);
+      }
+    },
+    mouseUpFunction: function (e) {
+      this.dragging = false;
+    },
+    mouseMoveFunction: function (e) {
+      if (!this.dragging) {
+        return;
+      }
+      console.log('mousemove');
 
+      const updatedWidth = window.innerWidth - e.x;
+      console.log(e.x);
+      console.log(updatedWidth);
+      console.log(this.mainContentWidth - (updatedWidth - this.rightSidebarWidth));
+
+      this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.rightSidebarWidth));
+      this.mainContent.style.width = `${this.mainContentWidth}px`;
+
+      this.rightSidebarWidth = updatedWidth;
+      this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
+
+      this.rightController.style.left = `${this.leftSidebarWidth + this.mainContentWidth}px`
+    },
+    mouseLeaveFunction: function (e) {
+      this.dragging = false;
+    }
   },
   data() {
     return {
+      dragging: false,
+      leftMoveX: null,
+      rightMoveX: null,
+      leftResizeOffset: null,
+      rightResizeOffset: null,
+      mainContent: null,
+      leftSidebar: null,
+      rightSidebar: null,
+      leftController: null,
+      rightController: null,
+      mainContentWidth: null,
+      leftSidebarWidth: null,
+      rightSidebarWidth: null,
+      controllerWidth: 10
     };
   },
-  async created() {
+  async mounted() {
+    this.mainContent = document.querySelector('.main-content');
+    this.leftSidebar = document.querySelector('.resizable-sidebar-left');
+    this.rightSidebar = document.querySelector('.resizable-sidebar-right');
+    this.leftController = document.querySelector('.resize-controller-left');
+    this.rightController = document.querySelector('.resize-controller-right');
+
+    this.leftSidebarWidth = Math.floor(this.leftSidebar.getBoundingClientRect().width);
+    this.rightSidebarWidth = Math.floor(this.rightSidebar.getBoundingClientRect().width);
+    this.mainContentWidth = window.innerWidth - this.leftSidebarWidth - this.rightSidebarWidth - (this.controllerWidth * 2);
+
+    this.mainContent.style.width = `${this.mainContentWidth}px`;
+    this.mainContent.style.left = `${this.leftSidebarWidth}px`
+    this.leftSidebar.style.width = `${this.leftSidebarWidth}px`;
+    this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
+    this.leftController.style.left = `${this.leftSidebarWidth}px`;
+    this.rightController.style.left = `${this.leftSidebarWidth + this.mainContentWidth}px`;
+
+    this.leftMoveX = this.leftSidebarWidth + this.controllerWidth / 2;
+    this.rightMoveX = (this.rightSidebarWidth + this.mainContentWidth) + this.controllerWidth / 2;
+
+    this.rightController.addEventListener('mousedown', this.mouseDownFunction);
+    document.querySelector('body').addEventListener('mouseup', this.mouseUpFunction);
+    // this.mainContent.addEventListener('mouseleave', this.mouseLeaveFunction);
+    // this.mainContent.addEventListener('mousemove', this.mouseMoveFunction);
+    this.rightController.addEventListener('mousemove', this.mouseMoveFunction);
   }
 }
 </script>
@@ -88,18 +171,6 @@ button:hover {
   color: var(--accent-color-faded);
 }
 
-.list-container {
-  width: 40%;
-  margin: auto;
-  margin-top: 2em;
-}
-
-.list-btn-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
 aside {
   overflow: auto;
   position: fixed;
@@ -109,11 +180,25 @@ aside {
   background-color: var(--accent-color-faded);
 }
 
-.sidebar-left {
-  top: 0;
+.main-content {
+  height: 100vh;
 }
 
-.sidebar-right {
+.resizable-components-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.resize-controller {
+  position: absolute;
+  width: 10px;
+  height: 100vh;
+  background-color: red;
+
+  cursor: col-resize;
+}
+
+.resizable-sidebar-right {
   right: 0;
 }
 </style>
