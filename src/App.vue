@@ -57,16 +57,16 @@ export default {
       console.log('mousemove');
 
       const updatedWidth = window.innerWidth - e.x;
-      console.log(e.x);
-      console.log(updatedWidth);
-      console.log(this.mainContentWidth - (updatedWidth - this.rightSidebarWidth));
-
       this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.rightSidebarWidth));
-      this.mainContent.style.width = `${this.mainContentWidth}px`;
-
       this.rightSidebarWidth = updatedWidth;
-      this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
 
+      console.log(e.x);
+      console.log(this.leftSidebarWidth);
+      console.log(this.mainContentWidth);
+      console.log(this.rightSidebarWidth);
+
+      this.mainContent.style.width = `${this.mainContentWidth}px`;
+      this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
       this.rightController.style.left = `${this.leftSidebarWidth + this.mainContentWidth}px`
     },
     mouseLeaveFunction: function (e) {
@@ -80,6 +80,7 @@ export default {
       rightMoveX: null,
       leftResizeOffset: null,
       rightResizeOffset: null,
+      resizeContainer: null,
       mainContent: null,
       leftSidebar: null,
       rightSidebar: null,
@@ -92,6 +93,7 @@ export default {
     };
   },
   async mounted() {
+    this.resizeContainer = document.querySelector('.resizable-components-container');
     this.mainContent = document.querySelector('.main-content');
     this.leftSidebar = document.querySelector('.resizable-sidebar-left');
     this.rightSidebar = document.querySelector('.resizable-sidebar-right');
@@ -113,10 +115,9 @@ export default {
     this.rightMoveX = (this.rightSidebarWidth + this.mainContentWidth) + this.controllerWidth / 2;
 
     this.rightController.addEventListener('mousedown', this.mouseDownFunction);
-    document.querySelector('body').addEventListener('mouseup', this.mouseUpFunction);
-    // this.mainContent.addEventListener('mouseleave', this.mouseLeaveFunction);
-    // this.mainContent.addEventListener('mousemove', this.mouseMoveFunction);
-    this.rightController.addEventListener('mousemove', this.mouseMoveFunction);
+    this.resizeContainer.addEventListener('mouseleave', this.mouseLeaveFunction);
+    this.resizeContainer.addEventListener('mousemove', this.mouseMoveFunction);
+    this.resizeContainer.addEventListener('mousemove', this.mouseMoveFunction);
   }
 }
 </script>
