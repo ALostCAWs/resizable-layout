@@ -62,11 +62,15 @@ export default {
         return;
       }
 
-      const updatedWidth = e.x;
+      let updatedWidth = e.x;
+      if (updatedWidth < window.innerWidth / 7) {
+        updatedWidth = window.innerWidth / 7;
+      }
       this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.leftSidebarWidth));
       this.leftSidebarWidth = updatedWidth;
 
       this.mainContent.style.width = `${this.mainContentWidth}px`;
+      this.mainContent.style.left = `${this.leftSidebarWidth + this.controllerWidth}px`;
       this.leftSidebar.style.width = `${this.leftSidebarWidth}px`;
       this.leftController.style.left = `${this.leftSidebarWidth}px`;
 
@@ -81,7 +85,10 @@ export default {
         return;
       }
 
-      const updatedWidth = window.innerWidth - e.x;
+      let updatedWidth = window.innerWidth - e.x;
+      if (updatedWidth < window.innerWidth / 7) {
+        updatedWidth = window.innerWidth / 7;
+      }
       this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.rightSidebarWidth));
       this.rightSidebarWidth = updatedWidth;
 
