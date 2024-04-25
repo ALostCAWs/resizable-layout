@@ -35,9 +35,14 @@ export default {
     mouseDownFunction: function (e) {
       console.log(e);
       this.dragging = true;
+      this.resizeContainer.removeEventListener('mousemove', this.leftSideBarResize);
+      this.resizeContainer.removeEventListener('mousemove', this.rightSideBarResize);
+
       if (e.toElement.classList.contains('left')) {
         console.log('left');
         this.leftMoveX = e.x;
+
+        this.resizeContainer.addEventListener('mousemove', this.leftSideBarResize);
       }
       if (e.toElement.classList.contains('right')) {
         console.log('right');
@@ -45,29 +50,50 @@ export default {
         this.rightResizeOffset = Math.round(e.x - (this.leftSidebarWidth + this.controllerWidth + this.mainContentWidth ));
         console.log(this.rightMoveX);
         console.log(this.rightResizeOffset);
+
+        this.resizeContainer.addEventListener('mousemove', this.rightSideBarResize);
       }
     },
     mouseUpFunction: function (e) {
       this.dragging = false;
     },
-    mouseMoveFunction: function (e) {
+    leftSideBarResize: function (e) {
       if (!this.dragging) {
         return;
       }
-      console.log('mousemove');
+
+      const updatedWidth = e.x;
+      this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.leftSidebarWidth));
+      this.leftSidebarWidth = updatedWidth;
+
+      this.mainContent.style.width = `${this.mainContentWidth}px`;
+      this.leftSidebar.style.width = `${this.leftSidebarWidth}px`;
+      this.leftController.style.left = `${this.leftSidebarWidth}px`;
+
+      console.log(e);
+      console.log(e.x);
+      console.log(this.leftSidebarWidth);
+      console.log(this.mainContentWidth);
+      console.log(this.leftSidebarWidth);
+    },
+    rightSideBarResize: function (e) {
+      if (!this.dragging) {
+        return;
+      }
 
       const updatedWidth = window.innerWidth - e.x;
       this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.rightSidebarWidth));
       this.rightSidebarWidth = updatedWidth;
 
+      this.mainContent.style.width = `${this.mainContentWidth}px`;
+      this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
+      this.rightController.style.left = `${this.leftSidebarWidth + this.mainContentWidth}px`;
+
+      console.log(e);
       console.log(e.x);
       console.log(this.leftSidebarWidth);
       console.log(this.mainContentWidth);
       console.log(this.rightSidebarWidth);
-
-      this.mainContent.style.width = `${this.mainContentWidth}px`;
-      this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
-      this.rightController.style.left = `${this.leftSidebarWidth + this.mainContentWidth}px`
     },
     mouseLeaveFunction: function (e) {
       this.dragging = false;
@@ -105,7 +131,7 @@ export default {
     this.mainContentWidth = window.innerWidth - this.leftSidebarWidth - this.rightSidebarWidth - (this.controllerWidth * 2);
 
     this.mainContent.style.width = `${this.mainContentWidth}px`;
-    this.mainContent.style.left = `${this.leftSidebarWidth}px`
+    this.mainContent.style.left = `${this.leftSidebarWidth + this.controllerWidth}px`
     this.leftSidebar.style.width = `${this.leftSidebarWidth}px`;
     this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
     this.leftController.style.left = `${this.leftSidebarWidth}px`;
@@ -114,10 +140,10 @@ export default {
     this.leftMoveX = this.leftSidebarWidth + this.controllerWidth / 2;
     this.rightMoveX = (this.rightSidebarWidth + this.mainContentWidth) + this.controllerWidth / 2;
 
+    this.leftController.addEventListener('mousedown', this.mouseDownFunction);
     this.rightController.addEventListener('mousedown', this.mouseDownFunction);
     this.resizeContainer.addEventListener('mouseleave', this.mouseLeaveFunction);
-    this.resizeContainer.addEventListener('mousemove', this.mouseMoveFunction);
-    this.resizeContainer.addEventListener('mousemove', this.mouseMoveFunction);
+    this.resizeContainer.addEventListener('mouseup', this.mouseUpFunction);
   }
 }
 </script>
