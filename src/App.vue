@@ -32,6 +32,15 @@ export default {
     Sidebar
   },
   methods: {
+    validateWidth: function (updatedWidth) {
+      if (updatedWidth < this.minSidebarSize) {
+        return this.minSidebarSize;
+      }
+      if (updatedWidth > this.maxSidebarSize) {
+        return this.maxSidebarSize;
+      }
+      return updatedWidth;
+    },
     beginSidebarDrag: function (e) {
       this.dragging = true;
       this.resizeContainer.removeEventListener('mousemove', this.leftSideBarResize);
@@ -52,41 +61,20 @@ export default {
         return;
       }
 
-      let updatedWidth = e.x;
-      if (updatedWidth < this.minSidebarSize) {
-        updatedWidth = this.minSidebarSize;
-      }
-      if (updatedWidth > this.maxSidebarSize) {
-        updatedWidth = this.maxSidebarSize;
-      }
-
+      const updatedWidth = this.validateWidth(e.x);
       this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.leftSidebarWidth));
       this.leftSidebarWidth = updatedWidth;
-
-      this.mainContent.style.width = `${this.mainContentWidth}px`;
-      this.mainContent.style.left = `${this.leftSidebarWidth + this.controllerWidth}px`;
-      this.leftSidebar.style.width = `${this.leftSidebarWidth}px`;
-      this.leftController.style.left = `${this.leftSidebarWidth}px`;
+      localStorage.setItem("leftSidebarWidth", this.leftSidebarWidth);
     },
     rightSideBarResize: function (e) {
       if (!this.dragging) {
         return;
       }
 
-      let updatedWidth = window.innerWidth - e.x;
-      if (updatedWidth < this.minSidebarSize) {
-        updatedWidth = this.minSidebarSize;
-      }
-      if (updatedWidth > this.maxSidebarSize) {
-        updatedWidth = this.maxSidebarSize;
-      }
-
+      const updatedWidth = this.validateWidth(window.innerWidth - e.x);
       this.mainContentWidth = (this.mainContentWidth - (updatedWidth - this.rightSidebarWidth));
       this.rightSidebarWidth = updatedWidth;
-
-      this.mainContent.style.width = `${this.mainContentWidth}px`;
-      this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
-      this.rightController.style.left = `${this.leftSidebarWidth + this.mainContentWidth}px`;
+      localStorage.setItem("rightSidebarWidth", this.rightSidebarWidth);
     }
   },
   data() {
@@ -101,14 +89,28 @@ export default {
       leftController: null,
       rightController: null,
       mainContentWidth: null,
-      leftSidebarWidth: null,
-      rightSidebarWidth: null,
-      controllerWidth: 10
+      leftSidebarWidth: parseInt(localStorage.getItem("leftSidebarWidth")),
+      rightSidebarWidth: parseInt(localStorage.getItem("rightSidebarWidth")),
+      controllerWidth: 8
     };
   },
+  watch: {
+    mainContentWidth: function (updatedWidth) {
+      this.mainContent.style.width = `${updatedWidth}px`;
+    },
+    leftSidebarWidth: function (updatedWidth) {
+      this.mainContent.style.left = `${updatedWidth + this.controllerWidth}px`;
+      this.leftSidebar.style.width = `${updatedWidth}px`;
+      this.leftController.style.left = `${updatedWidth}px`;
+    },
+    rightSidebarWidth: function (updatedWidth) {
+      this.rightSidebar.style.width = `${updatedWidth}px`;
+      this.rightController.style.left = `${this.leftSidebarWidth + this.mainContentWidth}px`;
+    }
+  },
   created() {
-    this.minSidebarSize = window.innerWidth / 8;
-    this.maxSidebarSize = window.innerWidth / 2.5;
+    this.minSidebarSize = Math.floor(window.innerWidth / 8);
+    this.maxSidebarSize = Math.floor(window.innerWidth / 2.5);
   },
   mounted() {
     this.resizeContainer = document.querySelector('.resizable-components-container');
@@ -118,12 +120,17 @@ export default {
     this.leftController = document.querySelector('.resize-controller-left');
     this.rightController = document.querySelector('.resize-controller-right');
 
-    this.leftSidebarWidth = Math.floor(this.leftSidebar.getBoundingClientRect().width);
-    this.rightSidebarWidth = Math.floor(this.rightSidebar.getBoundingClientRect().width);
+    if (this.leftSidebarWidth === null || this.leftSidebarWidth === undefined) {
+      this.leftSidebarWidth = Math.floor(this.leftSidebar.getBoundingClientRect().width);
+    }
+    if (this.rightSidebarWidth === null || this.rightSidebarWidth === undefined) {
+      this.rightSidebarWidth = Math.floor(this.rightSidebar.getBoundingClientRect().width);
+    }
+
     this.mainContentWidth = window.innerWidth - this.leftSidebarWidth - this.rightSidebarWidth - (this.controllerWidth * 2);
 
     this.mainContent.style.width = `${this.mainContentWidth}px`;
-    this.mainContent.style.left = `${this.leftSidebarWidth + this.controllerWidth}px`
+    this.mainContent.style.left = `${this.leftSidebarWidth + this.controllerWidth}px`;
     this.leftSidebar.style.width = `${this.leftSidebarWidth}px`;
     this.rightSidebar.style.width = `${this.rightSidebarWidth}px`;
     this.leftController.style.left = `${this.leftSidebarWidth}px`;
@@ -209,7 +216,7 @@ aside {
   position: absolute;
   width: 10px;
   height: 100vh;
-  background-color: red;
+  /* background-color: var(--accent-color-faded); */
 
   cursor: col-resize;
 }
