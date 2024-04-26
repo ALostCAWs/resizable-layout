@@ -70,15 +70,15 @@ input, select, button {
   box-sizing: border-box;
   font-variation-settings: "wght" var(--main-font-wght);
   border: none;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-color) var(--accent-color-faded);
 }
 
 html {
   overflow-x: hidden;
   overflow-y: scroll;
   max-width: 100%;
-
-  scrollbar-width: thin;
-  scrollbar-color: var(--accent-color) var(--accent-color-faded);
 }
 
 body {

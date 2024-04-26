@@ -1,5 +1,5 @@
 <script setup>
-import Sidebar from './components/sidebar/Sidebar.vue'
+import Sidebar from './components/sidebar/Sidebar.vue';
 </script>
 
 <template>
@@ -94,8 +94,6 @@ export default {
       dragging: false,
       minSidebarSize: null,
       maxSidebarSize: null,
-      leftResizeOffset: null,
-      rightResizeOffset: null,
       resizeContainer: null,
       mainContent: null,
       leftSidebar: null,
